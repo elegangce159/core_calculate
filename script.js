@@ -1,7 +1,7 @@
 document.getElementById('fileInput').addEventListener('change', handleFile, false);
 
-function handleFile(e) {
-  const file = e.target.files[0];
+function handleFile() {
+  const file = document.getElementById('fileInput').files[0];
   if (!file) {
     alert('파일을 선택해주세요.');
     return;
