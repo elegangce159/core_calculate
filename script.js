@@ -3,26 +3,38 @@ document.getElementById('fileInput').addEventListener('change', handleFile, fals
 
 function handleFile(e) {
     var files = e.target.files;
+    if (files.length === 0) {
+        console.log("No file selected.");
+        return;
+    }
+
     var f = files[0];
     var reader = new FileReader();
+
     reader.onload = function(e) {
-        var data = new Uint8Array(e.target.result);
-        var workbook = XLSX.read(data, {type: 'array'});
-        var first_sheet_name = workbook.SheetNames[0];
-        var worksheet = workbook.Sheets[first_sheet_name];
-        var data = XLSX.utils.sheet_to_json(worksheet, {header:1});
+        try {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, {type: 'array'});
+            var first_sheet_name = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[first_sheet_name];
+            var jsonData = XLSX.utils.sheet_to_json(worksheet, {header:1});
 
-        // 데이터 처리 로직
-        var processedData = processData(data);
-
-        // 데이터 다운로드
-        downloadProcessedData(processedData);
+            console.log("Sheet data:", jsonData);
+            var processedData = processData(jsonData);
+            downloadProcessedData(processedData);
+        } catch (error) {
+            console.error("Error processing file:", error);
+        }
     };
+
+    reader.onerror = function(event) {
+        console.error("File could not be read! Code " + event.target.error.code);
+    };
+
     reader.readAsArrayBuffer(f);
 }
 
 function processData(data) {
-    // 열 이름에 따라 데이터를 매핑하는 코드가 필요
     return data.map(row => {
         return {
             기관명: row[0], // 신청자소속기관
@@ -36,6 +48,10 @@ function processData(data) {
 function calculateHours(start, end) {
     const startDate = new Date(start);
     const endDate = new Date(end);
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        console.error("Invalid date format:", start, end);
+        return 0;
+    }
     return (endDate - startDate) / 3600000; // 밀리세컨드로 나누어 시간 단위로 반환
 }
 
