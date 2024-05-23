@@ -9,10 +9,30 @@ function handleFile(e) {
         var data = new Uint8Array(e.target.result);
         var workbook = XLSX.read(data, {type: 'array'});
 
-        // ¿©±â¼­ ¿öÅ©ºÏ µ¥ÀÌÅÍ¸¦ Ã³¸®ÇÏ°í °á°ú¸¦ »ı¼ºÇÒ ¼ö ÀÖ½À´Ï´Ù.
-        console.log(workbook);  // ÄÜ¼Ö¿¡¼­ ¿öÅ©ºÏ ±¸Á¶ È®ÀÎ
+        // ë°ì´í„° ì²˜ë¦¬ ë¡œì§
+        // ì˜ˆ: ì²« ë²ˆì§¸ ì‹œíŠ¸ì˜ ë°ì´í„°ë¥¼ JSONìœ¼ë¡œ ë³€í™˜
+        var first_sheet_name = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[first_sheet_name];
+        var json_data = XLSX.utils.sheet_to_json(worksheet, {header:1});
+        console.log(json_data);
+
+        // JSON ë°ì´í„°ë¥¼ ë‹¤ìš´ë¡œë“œ ê°€ëŠ¥í•œ íŒŒì¼ë¡œ ë³€í™˜
+        downloadProcessedFile(json_data);
     };
     reader.readAsArrayBuffer(f);
+}
+
+function downloadProcessedFile(data) {
+    const fileName = 'processed_data.json';
+    const json = JSON.stringify(data, null, 4);
+    const blob = new Blob([json], {type: 'application/json'});
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function processFile() {
