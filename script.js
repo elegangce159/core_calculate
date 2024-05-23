@@ -47,8 +47,8 @@ function processData(data) {
 }
 
 function calculateHours(startDate, endDate) {
-  if (!startDate || !endDate) {
-    throw new Error('예약 시작일자 또는 종료일자 정보가 없습니다.');
+  if (!startDate || !endDate || !startDate.trim() || !endDate.trim()) {
+    return 0; // 빈칸이거나 공백인 경우 0으로 반환
   }
   const start = new Date(startDate);
   const end = new Date(endDate);
