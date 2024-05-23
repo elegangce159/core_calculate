@@ -22,12 +22,13 @@ function handleFile(e) {
 }
 
 function processData(data) {
+    // 열 이름에 따라 데이터를 매핑하는 코드가 필요
     return data.map(row => {
         return {
             기관명: row[0], // 신청자소속기관
             시료수: row[1], // 시료수
             신청자명: row[2], // 신청자명
-            시간_hr: calculateHours(row[3], row[4]) // 시간 계산
+            시간_hr: calculateHours(row[3], row[4]) // 실제예약시작일자와 실제예약종료일자 사이의 시간 계산
         };
     });
 }
