@@ -34,14 +34,16 @@ function handleFile() {
 
 function processData(data) {
   return data.map(record => {
-    if (!record.신청자소속기관 || !record.시료수 || !record.신청자명) {
-      throw new Error('필수 데이터가 누락되었습니다.');
-    }
+    const 기관명 = record.신청자소속기관 || '알 수 없음';
+    const 시료수 = record.시료수 || 0;
+    const 신청자명 = record.신청자명 || '알 수 없음';
+    const 시간 = calculateHours(record.실제예약시작일자, record.실제예약종료일자);
+
     return {
-      기관명: record.신청자소속기관,
-      시료수: record.시료수,
-      신청자명: record.신청자명,
-      시간: calculateHours(record.실제예약시작일자, record.실제예약종료일자)
+      기관명: 기관명,
+      시료수: 시료수,
+      신청자명: 신청자명,
+      시간: 시간
     };
   });
 }
