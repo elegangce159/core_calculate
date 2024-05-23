@@ -8,31 +8,41 @@ function handleFile(e) {
     reader.onload = function(e) {
         var data = new Uint8Array(e.target.result);
         var workbook = XLSX.read(data, {type: 'array'});
-
-        // 데이터 처리 로직
-        // 예: 첫 번째 시트의 데이터를 JSON으로 변환
         var first_sheet_name = workbook.SheetNames[0];
         var worksheet = workbook.Sheets[first_sheet_name];
-        var json_data = XLSX.utils.sheet_to_json(worksheet, {header:1});
-        console.log(json_data);
+        var data = XLSX.utils.sheet_to_json(worksheet, {header:1});
 
-        // JSON 데이터를 다운로드 가능한 파일로 변환
-        downloadProcessedFile(json_data);
+        // 데이터 처리 로직
+        var processedData = processData(data);
+
+        // 데이터 다운로드
+        downloadProcessedData(processedData);
     };
     reader.readAsArrayBuffer(f);
 }
 
-function downloadProcessedFile(data) {
-    const fileName = 'processed_data.json';
-    const json = JSON.stringify(data, null, 4);
-    const blob = new Blob([json], {type: 'application/json'});
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+function processData(data) {
+    return data.map(row => {
+        return {
+            기관명: row[0], // 신청자소속기관
+            시료수: row[1], // 시료수
+            신청자명: row[2], // 신청자명
+            시간_hr: calculateHours(row[3], row[4]) // 시간 계산
+        };
+    });
+}
+
+function calculateHours(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    return (endDate - startDate) / 3600000; // 밀리세컨드로 나누어 시간 단위로 반환
+}
+
+function downloadProcessedData(data) {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Processed Data");
+    XLSX.writeFile(wb, "processed_data.xlsx");
 }
 
 function processFile() {
